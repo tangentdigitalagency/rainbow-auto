@@ -54,7 +54,7 @@ export default function PersonalInfo() {
       console.log(data);
     }
 
-    handleFormNavigation("/identity");
+    handleFormNavigation("/address");
   };
 
   const handleBack = () => {
