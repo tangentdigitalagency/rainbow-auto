@@ -18,16 +18,16 @@ export interface FormData {
   driverOneGender?: string; //done
   driverOneResidence?: string; //done
   driverOneYearAtResidence?: string; //done
-  driverOneCredit?: string;
+  driverOneCredit?: string; // done
   driverOneRelationship?: string; //done
   driverOneMaritalStatus?: string; //done
   driverOneOccupation?: string; //done
-  driverOneAgedLicensed?: string;
-  driverOneLicenseState?: string;
-  driverOneLicenseStatus?: string;
-  driverOneSuspended?: string;
-  driverOneFilingRequired?: string;
-  driverOneDUI?: string;
+  driverOneAgedLicensed?: string; // done
+  driverOneLicenseState?: string; //done
+  driverOneLicenseStatus?: string; //done
+  driverOneSuspended?: string; //done
+  driverOneFilingRequired?: string; //done
+  driverOneDUI?: string; //done
   driverOneDUIDate?: string; // ISO date string
   driverOneDUIState?: string;
 
@@ -38,9 +38,9 @@ export interface FormData {
   property?: string;
   requestedCoverageType?: string;
 
-  vehicleOneYear?: string;
-  vehicleOneMake?: string;
-  vehicleOneModel?: string;
+  vehicleOneYear?: string; //done
+  vehicleOneMake?: string; //done
+  vehicleOneModel?: string; //done
   vehicleOneTrim?: string;
   vehicleOneOwnership?: string;
   vehicleOnePrimaryUsage?: string;

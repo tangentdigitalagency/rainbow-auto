@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { creditOptions } from "@/lib/creditOptions";
 import { stateOptions } from "@/lib/stateOptions";
+import { useNavigation } from "@/App";
 
 type HistoryData = {
   driverOneCredit: string;
@@ -24,8 +25,9 @@ type HistoryData = {
 
 export default function History() {
   const location = useLocation();
-  const { updateFormData, formData } = useFormData();
   const navigate = useNavigate();
+  const { updateFormData, formData } = useFormData();
+  const { handleFormNavigation } = useNavigation();
   const userId = localStorage.getItem("userId");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,7 +53,7 @@ export default function History() {
         lastCompletedStep: location.pathname,
       });
     }
-    navigate("/risk");
+    handleFormNavigation("/risk");
   };
 
   const handleBack = () => {

@@ -12,6 +12,7 @@ import { ChevronRight, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { occupationOptions } from "@/lib/occupationOptions";
+import { useNavigation } from "@/App";
 
 type IdentityFormData = {
   driverOneGender: string;
@@ -23,8 +24,9 @@ type IdentityFormData = {
 
 export default function Identity() {
   const location = useLocation();
-  const { updateFormData, formData } = useFormData();
   const navigate = useNavigate();
+  const { updateFormData, formData } = useFormData();
+  const { handleFormNavigation } = useNavigation();
   const userId = localStorage.getItem("userId");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,7 +53,7 @@ export default function Identity() {
         lastCompletedStep: location.pathname,
       });
     }
-    navigate("/history");
+    handleFormNavigation("/history");
   };
 
   const handleBack = () => {

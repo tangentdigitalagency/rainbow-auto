@@ -6,6 +6,7 @@ import { ChevronRight, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { AddressAutofill } from "@mapbox/search-js-react";
 import { AddressAutofillProps } from "@mapbox/search-js-react/dist/components/AddressAutofill";
+import { useNavigation } from "@/App";
 
 type AddressFormData = {
   address1: string;
@@ -20,9 +21,10 @@ const AddressAutoFillWrapper =
 
 export default function Address() {
   const location = useLocation();
+  const navigate = useNavigate();
   const apiKey = import.meta.env.VITE_MAPBOX_API;
   const { updateFormData, formData } = useFormData();
-  const navigate = useNavigate();
+  const { handleFormNavigation } = useNavigation();
   const userId = localStorage.getItem("userId");
 
   const {
@@ -53,7 +55,7 @@ export default function Address() {
         lastCompletedStep: location.pathname,
       });
     }
-    navigate("/identity");
+    handleFormNavigation("/identity");
   };
 
   const handleBack = () => {

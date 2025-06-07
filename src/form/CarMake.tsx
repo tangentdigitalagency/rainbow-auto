@@ -1,0 +1,131 @@
+import { useRef } from "react";
+import { useForm, Controller, Control } from "react-hook-form";
+import { Autocomplete, AutocompleteItem, Button, Spinner } from "@heroui/react";
+import useFormData from "@/data/useFormData";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useCarMakes } from "@/hooks/useCarMakes";
+
+type CarMakeData = {
+  make: string;
+};
+
+type MakeSelectProps = {
+  control: Control<CarMakeData>;
+  makeOptions: { value: string; label: string }[];
+};
+
+const MakeSelect = ({ control, makeOptions }: MakeSelectProps) => {
+  return (
+    <Controller
+      control={control}
+      name="make"
+      rules={{ required: "Make is required" }}
+      render={({ field }) => (
+        <Autocomplete
+          {...field}
+          label="Select Make"
+          placeholder="Search for your vehicle's make"
+          onSelectionChange={(value) => field.onChange(value)}
+          selectedKey={field.value}
+        >
+          {makeOptions.map((make) => (
+            <AutocompleteItem key={make.value} textValue={make.label}>
+              {make.label}
+            </AutocompleteItem>
+          ))}
+        </Autocomplete>
+      )}
+    />
+  );
+};
+
+export function CarMake() {
+  const navigate = useNavigate();
+  const { formData, updateFormData } = useFormData();
+  const {
+    data: makes,
+    isLoading,
+    error,
+  } = useCarMakes(formData.vehicleOneYear || "");
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm<CarMakeData>({
+    defaultValues: {
+      make: formData.vehicleOneMake || "",
+    },
+  });
+
+  const onSubmit = (data: CarMakeData) => {
+    updateFormData({
+      vehicleOneMake: data.make,
+      lastCompletedStep: "car-make",
+    });
+    navigate("/car-model");
+  };
+
+  const handleBack = () => {
+    navigate("/car-year");
+  };
+
+  const fadeIn = {
+    initial: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.5 } },
+  };
+
+  if (isLoading) return <Spinner />;
+  if (error) return <div>Error loading makes: {error.message}</div>;
+  if (!makes || makes.length === 0) return <div>No makes available</div>;
+
+  const makeOptions = makes.map((make) => ({ value: make, label: make }));
+
+  return (
+    <motion.div
+      className="space-y-6"
+      initial="hidden"
+      animate="visible"
+      variants={fadeIn}
+    >
+      <h2 className="text-xl font-semibold">What Make is your car?</h2>
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-4"
+      >
+        <MakeSelect control={control} makeOptions={makeOptions} />
+        <motion.div
+          className="flex justify-between space-x-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.3 }}
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            color="default"
+            size="lg"
+            onPress={handleBack}
+            startContent={<ChevronLeft className="w-4 h-4" />}
+          >
+            Back
+          </Button>
+          <Button
+            type="submit"
+            color="primary"
+            size="lg"
+            className="flex-grow"
+            endContent={<ChevronRight className="ml-2" />}
+            isLoading={isSubmitting}
+          >
+            Continue
+          </Button>
+        </motion.div>
+      </form>
+    </motion.div>
+  );
+}

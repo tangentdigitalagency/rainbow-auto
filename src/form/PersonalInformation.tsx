@@ -5,6 +5,7 @@ import useFormData from "@/data/useFormData";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useNavigation } from "@/App";
 
 type PersonalInfo = {
   firstName: string;
@@ -17,8 +18,9 @@ type PersonalInfo = {
 
 export default function PersonalInfo() {
   const location = useLocation();
-  const { updateFormData, formData } = useFormData();
   const navigate = useNavigate();
+  const { updateFormData, formData } = useFormData();
+  const { handleFormNavigation } = useNavigation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const userId = localStorage.getItem("userId");
 
@@ -52,7 +54,7 @@ export default function PersonalInfo() {
       console.log(data);
     }
 
-    navigate("/address");
+    handleFormNavigation("/identity");
   };
 
   const handleBack = () => {
