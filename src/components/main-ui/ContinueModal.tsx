@@ -40,6 +40,9 @@ const ContinuationModal: React.FC<ContinuationModalProps> = ({
       "/car-year": "Vehicle Year",
       "/car-make": "Vehicle Make",
       "/car-model": "Vehicle Model",
+      "/vehicle-data": "Vehicle Data",
+      "/vehicle-usage": "Vehicle Usage",
+      "/vehicle-profile": "Vehicle Profile",
     };
     return (
       steps[path] ||
@@ -62,6 +65,9 @@ const ContinuationModal: React.FC<ContinuationModalProps> = ({
       "/car-year",
       "/car-make",
       "/car-model",
+      "/vehicle-data",
+      "/vehicle-usage",
+      "/vehicle-profile",
     ];
 
     // Normalize the path to ensure it starts with a slash

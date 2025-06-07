@@ -15,6 +15,9 @@ import Drivers from "./form/Drivers";
 import { CarYear } from "./form/CarYear";
 import { CarMake } from "./form/CarMake";
 import { CarModel } from "./form/CarModel";
+import VehicleUsage from "./form/VehicleUsage";
+import VehicleData from "./form/VehicleData";
+import VehicleProfile from "./form/VehicleProfile";
 
 // Create a navigation context
 type NavigationContextType = {
@@ -159,6 +162,32 @@ function AppContent() {
           element={
             <FormTemplate progress={80}>
               <CarModel />
+            </FormTemplate>
+          }
+        />
+
+        <Route
+          path="/vehicle-data"
+          element={
+            <FormTemplate progress={90}>
+              <VehicleData />
+            </FormTemplate>
+          }
+        />
+        <Route
+          path="/vehicle-usage"
+          element={
+            <FormTemplate progress={100}>
+              <VehicleUsage />
+            </FormTemplate>
+          }
+        />
+
+        <Route
+          path="/vehicle-profile"
+          element={
+            <FormTemplate progress={100}>
+              <VehicleProfile />
             </FormTemplate>
           }
         />

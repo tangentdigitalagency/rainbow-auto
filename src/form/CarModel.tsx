@@ -2,7 +2,7 @@ import { useForm, Controller, Control } from "react-hook-form";
 import { Select, SelectItem, Button, Spinner } from "@heroui/react";
 import useFormData from "@/data/useFormData";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCarModels } from "@/hooks/useCarModels";
 
@@ -41,6 +41,7 @@ const ModelSelect = ({ control, modelOptions }: ModelSelectProps) => {
 
 export function CarModel() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { formData, updateFormData } = useFormData();
   const {
     data: models,
@@ -66,7 +67,16 @@ export function CarModel() {
       vehicleOneModel: data.model,
       lastCompletedStep: "car-model",
     });
-    navigate("/primary-use");
+
+    // Check for returnTo parameter
+    const searchParams = new URLSearchParams(location.search);
+    const returnTo = searchParams.get("returnTo");
+
+    if (returnTo) {
+      navigate(`/${returnTo}`);
+    } else {
+      navigate("/vehicle-data");
+    }
   };
 
   const handleBack = () => {

@@ -32,23 +32,25 @@ export interface FormData {
   driverOneDUIState?: string;
 
   additionalDrivers?: boolean;
+
   currentlyInsured?: string;
   currentProvider?: string;
   bodily?: string;
   property?: string;
   requestedCoverageType?: string;
+  vehicleOneComprehensive?: string;
+  vehicleOneCollision?: string;
 
   vehicleOneYear?: string; //done
   vehicleOneMake?: string; //done
   vehicleOneModel?: string; //done
   vehicleOneTrim?: string;
-  vehicleOneOwnership?: string;
-  vehicleOnePrimaryUsage?: string;
-  vehicleOneOneWayDistance?: string;
-  vehicleOneAnnualMiles?: string;
-  vehicleOneStorage?: string;
-  vehicleOneComprehensive?: string;
-  vehicleOneCollision?: string;
+  vehicleOneOwnership?: string; //done
+  vehicleOnePrimaryUsage?: string; //done
+  vehicleOneOneWayDistance?: string; //done
+  vehicleOneAnnualMiles?: string; //done
+  vehicleOneStorage?: string; //done
+  vehicleOneSecurity?: string; //done
 
   ipAddress?: string;
   userAgent?: string;

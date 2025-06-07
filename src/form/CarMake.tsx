@@ -3,7 +3,7 @@ import { useForm, Controller, Control } from "react-hook-form";
 import { Autocomplete, AutocompleteItem, Button, Spinner } from "@heroui/react";
 import useFormData from "@/data/useFormData";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCarMakes } from "@/hooks/useCarMakes";
 
@@ -43,6 +43,7 @@ const MakeSelect = ({ control, makeOptions }: MakeSelectProps) => {
 
 export function CarMake() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { formData, updateFormData } = useFormData();
   const {
     data: makes,
@@ -66,7 +67,17 @@ export function CarMake() {
       vehicleOneMake: data.make,
       lastCompletedStep: "car-make",
     });
-    navigate("/car-model");
+
+    // Check for returnTo parameter
+    const searchParams = new URLSearchParams(location.search);
+    const returnTo = searchParams.get("returnTo");
+
+    if (returnTo) {
+      // Pass through the returnTo parameter to the model page
+      navigate(`/car-model?returnTo=${returnTo}`);
+    } else {
+      navigate("/car-model");
+    }
   };
 
   const handleBack = () => {
