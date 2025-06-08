@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 import loadingAnimation from "@/assets/insurance.json";
+import useFormData from "@/data/useFormData";
 
 const messages = [
   "Summoning the insurance wizards...",
@@ -29,7 +30,111 @@ const messages = [
 
 export default function Submitting() {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { formData, updateFormData } = useFormData();
+
+  useEffect(() => {
+    const submitForm = async () => {
+      if (isSubmitting) return;
+      setIsSubmitting(true);
+
+      const params = new URLSearchParams({
+        CampaignId: "335089462252FC642798C12C760C4FC0",
+        IsTest: "True",
+        FirstName: formData.firstName || "",
+        LastName: formData.lastName || "",
+        Email: formData.email || "",
+        Phone: formData.phone || "",
+        Address1: formData.address1 || "",
+        Address2: formData.address2 || "",
+        City: formData.city || "",
+        State: formData.state || "",
+        Zip: formData.zipcode?.toString() || "",
+        DriverOneFirstName: formData.driverOneFirstName || "",
+        DriverOneLastName: formData.driverOneLastName || "",
+        DriverOneDateOfBirth: formData.driverOneDOB?.toString() || "",
+        DriverOneGender: formData.driverOneGender || "",
+        DriverOneResidence: formData.driverOneResidence || "",
+        DriverOneYearsAtResidence: formData.driverOneYearAtResidence || "",
+        DriverOneCredit: formData.driverOneCredit || "",
+        DriverOneRelationship: formData.driverOneRelationship || "",
+        DriverOneMaritalStatus: formData.driverOneMaritalStatus || "",
+        DriverOneOccupation: formData.driverOneOccupation || "",
+        DriverOneAgeLicensed: formData.driverOneAgedLicensed || "",
+        DriverOneLicenseState: formData.driverOneLicenseState || "",
+        DriverOneSuspended: formData.driverOneSuspended || "",
+        DriverOneFilingRequired: formData.driverOneFilingRequired || "",
+        DriverOneDUI: formData.driverOneDUI || "",
+        DriverTwoFirstName: formData.driverTwoFirstName || "",
+        DriverTwoLastName: formData.driverTwoLastName || "",
+        DriverTwoDateOfBirth: formData.driverTwoDOB?.toString() || "",
+        DriverTwoGender: formData.driverTwoGender || "",
+        DriverTwoCredit: formData.driverTwoCredit || "",
+        DriverTwoOccupation: formData.driverTwoOccupation || "",
+        DriverTwoLicenseStatus: formData.driverTwoLicenseStatus || "",
+        DriverTwoSuspended: formData.driverTwoSuspended || "",
+        DriverTwoFilingRequired: formData.driverTwoFilingRequired || "",
+        DriverTwoLicenseState: formData.driverTwoLicenseState || "",
+        CurrentlyInsured: formData.currentlyInsured || "",
+        RequestedCoverageType: formData.requestedCoverageType || "",
+        CurrentProvider: formData.currentProvider || "",
+        Bodily: formData.bodily || "",
+        Property: formData.property || "",
+        VehicleOneYear: formData.vehicleOneYear || "",
+        VehicleOneMake: formData.vehicleOneMake || "",
+        VehicleOneModel: formData.vehicleOneModel || "",
+        VehicleOneOwnership: formData.vehicleOneOwnership || "",
+        VehicleOneSecurity: formData.vehicleOneSecurity || "",
+        VehicleOnePrimaryUsage: formData.vehicleOnePrimaryUsage || "",
+        VehicleOneOneWayDistance: formData.vehicleOneOneWayDistance || "",
+        VehicleOneAnnualMiles: formData.vehicleOneAnnualMiles || "",
+        VehicleOneStorage: formData.vehicleOneStorage || "",
+        VehicleOneComprehensive: formData.vehicleOneComprehensive || "",
+        VehicleOneCollision: formData.vehicleOneCollision || "",
+        VehicleTwoYear: formData.vehicleTwoYear || "",
+        VehicleTwoMake: formData.vehicleTwoMake || "",
+        VehicleTwoModel: formData.vehicleTwoModel || "",
+        VehicleTwoOwnership: formData.vehicleTwoOwnership || "",
+        VehicleTwoSecurity: formData.vehicleTwoSecurity || "",
+        VehicleTwoPrimaryUsage: formData.vehicleTwoPrimaryUsage || "",
+        VehicleTwoOneWayDistance: formData.vehicleTwoOneWayDistance || "",
+        VehicleTwoAnnualMiles: formData.vehicleTwoAnnualMiles || "",
+        VehicleTwoStorage: formData.vehicleTwoStorage || "",
+        VehicleTwoComprehensive: formData.vehicleTwoComprehensive || "",
+        VehicleTwoCollision: formData.vehicleTwoCollision || "",
+        IPAddress: "",
+        UserAgent: navigator.userAgent,
+        SourceURL: window.location.href,
+        TCPA: "Yes",
+        TCPAText:
+          "By clicking Continue below, I expressly provide my E-SIGN signature and consent to receive marketing calls, texts, and emails regarding insurance, from or on behalf of USAA at the phone number and email address I provided, including via automatic telephone dialing system or artificial or prerecorded voice messages, even if my number is on a federal, state, or company Do-Not-Call List. I understand that my consent is not a condition of purchasing any goods or services. By clicking Get Quote, above, I affirm that I have read and agree to the Terms & conditions and Privacy policy including the arbitration provision and the E-SIGN Consent.",
+      });
+
+      try {
+        const response = await fetch(
+          `https://sag.leadcapsule.com/Leads/LeadPost.aspx?${params.toString()}`,
+          {
+            method: "POST",
+            mode: "no-cors",
+          }
+        );
+
+        console.log("Form submission response:", response);
+        // Update last completed step
+        updateFormData({
+          lastCompletedStep: "/thank-you",
+        });
+
+        // Don't navigate here - let the timeout handle it
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        navigate("/sorry");
+      }
+    };
+
+    submitForm();
+  }, []); // Empty dependency array since we only want to submit once
 
   // Handle message rotation
   useEffect(() => {
@@ -44,7 +149,7 @@ export default function Submitting() {
     return () => clearInterval(messageInterval);
   }, [currentMessageIndex]);
 
-  // Handle navigation
+  // Handle navigation after 7 seconds
   useEffect(() => {
     const navigationTimeout = setTimeout(() => {
       navigate("/thank-you");
