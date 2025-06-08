@@ -32,7 +32,7 @@ import AddressTwo from "./form/driverTwo/AddressTwo";
 import IdentityTwo from "./form/driverTwo/IdentityTwo";
 import HistoryTwo from "./form/driverTwo/HistoryTwo";
 import RiskTwo from "./form/driverTwo/RiskTwo";
-import PersonalTwo from "./form/driverTwo/PersonalInformationTWo";
+import PersonalTwo from "./form/driverTwo/PersonalInformationTwo";
 // Create a navigation context
 type NavigationContextType = {
   handleFormNavigation: (nextPath: string) => void;
