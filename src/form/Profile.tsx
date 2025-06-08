@@ -1,5 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { Button, Chip, Divider } from "@heroui/react";
+import {
+  Button,
+  Chip,
+  Divider,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@heroui/react";
 import useFormData from "@/data/useFormData";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -15,14 +24,19 @@ import {
   FileText,
   Plus,
   Phone,
+  Trash2,
 } from "lucide-react";
 import Avatar, { genConfig } from "react-nice-avatar";
 import { useEffect, useState } from "react";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { formData } = useFormData();
+  const { formData, deleteDriverTwo, deleteVehicleTwo, isLoading } =
+    useFormData();
   const [showBottomBar, setShowBottomBar] = useState(false);
+  const [isDeleteDriverModalOpen, setIsDeleteDriverModalOpen] = useState(false);
+  const [isDeleteVehicleModalOpen, setIsDeleteVehicleModalOpen] =
+    useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,6 +70,28 @@ export default function Profile() {
 
     // Add a returnTo parameter to know where to go back to
     navigate(`${routeMap[section]}?returnTo=profile`);
+  };
+
+  const handleDeleteDriver = async () => {
+    try {
+      console.log("Starting delete driver operation...");
+      await deleteDriverTwo();
+      console.log("Delete driver operation completed successfully");
+      setIsDeleteDriverModalOpen(false);
+    } catch (error) {
+      console.error("Error deleting driver:", error);
+    }
+  };
+
+  const handleDeleteVehicle = async () => {
+    try {
+      console.log("Starting delete vehicle operation...");
+      await deleteVehicleTwo();
+      console.log("Delete vehicle operation completed successfully");
+      setIsDeleteVehicleModalOpen(false);
+    } catch (error) {
+      console.error("Error deleting vehicle:", error);
+    }
   };
 
   // Generate avatar config based on user's name and gender
@@ -299,6 +335,14 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
+              <Button
+                isIconOnly
+                color="danger"
+                variant="light"
+                onPress={() => setIsDeleteDriverModalOpen(true)}
+              >
+                <Trash2 className="w-5 h-5" />
+              </Button>
             </div>
 
             <div className="mt-8 space-y-4">
@@ -510,6 +554,14 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
+              <Button
+                isIconOnly
+                color="danger"
+                variant="light"
+                onPress={() => setIsDeleteVehicleModalOpen(true)}
+              >
+                <Trash2 className="w-5 h-5" />
+              </Button>
             </div>
 
             <div className="mt-8 space-y-4">
@@ -700,6 +752,67 @@ export default function Profile() {
 
       {/* Add padding to prevent content from being hidden behind the sticky bar */}
       <div className="h-24" />
+
+      {/* Delete Driver Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteDriverModalOpen}
+        onClose={() => setIsDeleteDriverModalOpen(false)}
+      >
+        <ModalContent>
+          <ModalHeader>Remove Additional Driver</ModalHeader>
+          <ModalBody>
+            Are you sure you want to remove {formData.driverTwoFirstName}{" "}
+            {formData.driverTwoLastName}? This action cannot be undone.
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="light"
+              onPress={() => setIsDeleteDriverModalOpen(false)}
+              isDisabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="danger"
+              onPress={handleDeleteDriver}
+              isLoading={isLoading}
+            >
+              Remove Driver
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Delete Vehicle Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteVehicleModalOpen}
+        onClose={() => setIsDeleteVehicleModalOpen(false)}
+      >
+        <ModalContent>
+          <ModalHeader>Remove Vehicle</ModalHeader>
+          <ModalBody>
+            Are you sure you want to remove your {formData.vehicleTwoYear}{" "}
+            {formData.vehicleTwoMake} {formData.vehicleTwoModel}? This action
+            cannot be undone.
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="light"
+              onPress={() => setIsDeleteVehicleModalOpen(false)}
+              isDisabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="danger"
+              onPress={handleDeleteVehicle}
+              isLoading={isLoading}
+            >
+              Remove Vehicle
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </motion.div>
   );
 }

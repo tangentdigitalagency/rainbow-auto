@@ -82,13 +82,129 @@ const useFormData = () => {
     },
   });
 
+  const deleteDriverTwo = async () => {
+    console.log("deleteDriverTwo called with userId:", userId);
+    const { data, error } = await supabase
+      .from("formSubmissions")
+      .update({
+        driverTwoFirstName: null,
+        driverTwoLastName: null,
+        driverTwoDOB: null,
+        driverTwoGender: null,
+        driverTwoResidence: null,
+        driverTwoYearAtResidence: null,
+        driverTwoCredit: null,
+        driverTwoRelationship: null,
+        driverTwoMaritalStatus: null,
+        driverTwoOccupation: null,
+        driverTwoAgedLicensed: null,
+        driverTwoLicenseState: null,
+        driverTwoLicenseStatus: null,
+        driverTwoSuspended: null,
+        driverTwoFilingRequired: null,
+        driverTwoDUI: null,
+        driverTwoDUIDate: null,
+        driverTwoDUIState: null,
+        lastCompletedAt: new Date().toISOString(),
+        lastCompletedStep: "drivers",
+      })
+      .eq("userId", userId);
+
+    if (error) {
+      console.error("Supabase error:", error);
+      throw error;
+    }
+
+    console.log("Supabase update successful:", data);
+
+    // Update local cache
+    queryClient.setQueryData(
+      ["formData", userId],
+      (oldData: FormData | undefined) => {
+        if (!oldData) return oldData;
+        const newData = { ...oldData };
+        // Remove all driver two fields
+        Object.keys(newData).forEach((key) => {
+          if (key.startsWith("driverTwo")) {
+            delete newData[key as keyof FormData];
+          }
+        });
+        return {
+          ...newData,
+          lastCompletedAt: new Date().toISOString(),
+          lastCompletedStep: "drivers",
+        };
+      }
+    );
+
+    return data;
+  };
+
+  const deleteVehicleTwo = async () => {
+    console.log("deleteVehicleTwo called with userId:", userId);
+    const { data, error } = await supabase
+      .from("formSubmissions")
+      .update({
+        vehicleTwoYear: null,
+        vehicleTwoMake: null,
+        vehicleTwoModel: null,
+        vehicleTwoTrim: null,
+        vehicleTwoOwnership: null,
+        vehicleTwoPrimaryUsage: null,
+        vehicleTwoOneWayDistance: null,
+        vehicleTwoAnnualMiles: null,
+        vehicleTwoStorage: null,
+        vehicleTwoComprehensive: null,
+        vehicleTwoCollision: null,
+        lastCompletedAt: new Date().toISOString(),
+        lastCompletedStep: "vehicle-profile",
+      })
+      .eq("userId", userId);
+
+    if (error) {
+      console.error("Supabase error:", error);
+      throw error;
+    }
+
+    console.log("Supabase update successful:", data);
+
+    // Update local cache
+    queryClient.setQueryData(
+      ["formData", userId],
+      (oldData: FormData | undefined) => {
+        if (!oldData) return oldData;
+        const newData = { ...oldData };
+        // Remove all vehicle two fields
+        Object.keys(newData).forEach((key) => {
+          if (key.startsWith("vehicleTwo")) {
+            delete newData[key as keyof FormData];
+          }
+        });
+        return {
+          ...newData,
+          lastCompletedAt: new Date().toISOString(),
+          lastCompletedStep: "vehicle-profile",
+        };
+      }
+    );
+
+    return data;
+  };
+
   const updateFormData = (
     newData: Partial<FormData> & { lastCompletedStep?: string }
   ) => {
     mutation.mutate(newData);
   };
 
-  return { formData, updateFormData, isLoading: mutation.isPending, refetch };
+  return {
+    formData,
+    updateFormData,
+    deleteDriverTwo,
+    deleteVehicleTwo,
+    isLoading: mutation.isPending,
+    refetch,
+  };
 };
 
 export default useFormData;

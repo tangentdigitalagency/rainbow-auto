@@ -61,8 +61,14 @@ export interface FormData {
 
   driverTwoFirstName?: string;
   driverTwoLastName?: string;
-  driverTwoDOB?: string;
+  driverTwoDOB?: Date;
   driverTwoGender?: string;
+  driverTwoEmail?: string;
+  driverTwoAddress1?: string;
+  driverTwoAddress2?: string;
+  driverTwoCity?: string;
+  driverTwoState?: string;
+  driverTwoZipcode?: number;
   driverTwoResidence?: string;
   driverTwoYearAtResidence?: string;
   driverTwoCredit?: string;

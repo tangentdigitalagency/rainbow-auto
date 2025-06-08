@@ -1,5 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { Button, Chip } from "@heroui/react";
+import {
+  Button,
+  Chip,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@heroui/react";
 import {
   Plus,
   Car,
@@ -8,13 +16,16 @@ import {
   Gauge,
   Building,
   ArrowRight,
+  Trash2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import useFormData from "../data/useFormData";
+import { useState } from "react";
 
 export default function VehicleProfile() {
   const navigate = useNavigate();
-  const { formData } = useFormData();
+  const { formData, deleteVehicleTwo, isLoading } = useFormData();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Add console logs to debug form data
   console.log("Vehicle Profile Data:", {
@@ -77,6 +88,17 @@ export default function VehicleProfile() {
     // Use the first character of the make to determine the color
     const index = make.charCodeAt(0) % colors.length;
     return colors[index];
+  };
+
+  const handleDeleteVehicle = async () => {
+    try {
+      console.log("Starting delete operation...");
+      await deleteVehicleTwo();
+      console.log("Delete operation completed successfully");
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Error deleting vehicle:", error);
+    }
   };
 
   const renderVehicleCard = (vehicleNumber: number) => {
@@ -146,6 +168,16 @@ export default function VehicleProfile() {
               </div>
             </div>
           </div>
+          {vehicleNumber === 2 && (
+            <Button
+              isIconOnly
+              color="danger"
+              variant="light"
+              onPress={() => setIsDeleteModalOpen(true)}
+            >
+              <Trash2 className="w-5 h-5" />
+            </Button>
+          )}
         </div>
 
         <div className="mt-8 space-y-4">
@@ -248,6 +280,37 @@ export default function VehicleProfile() {
           Continue to Insurance Information
         </Button>
       </motion.div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+      >
+        <ModalContent>
+          <ModalHeader>Remove Vehicle</ModalHeader>
+          <ModalBody>
+            Are you sure you want to remove your {formData.vehicleTwoYear}{" "}
+            {formData.vehicleTwoMake} {formData.vehicleTwoModel}? This action
+            cannot be undone.
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="light"
+              onPress={() => setIsDeleteModalOpen(false)}
+              isDisabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="danger"
+              onPress={handleDeleteVehicle}
+              isLoading={isLoading}
+            >
+              Remove Vehicle
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </motion.div>
   );
 }
