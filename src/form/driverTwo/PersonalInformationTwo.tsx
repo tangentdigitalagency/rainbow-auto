@@ -16,7 +16,7 @@ type PersonalInfo = {
   driverTwoDOB: string;
 };
 
-export default function PersonalInfoTwo() {
+export default function PersonalTwo() {
   const location = useLocation();
   const navigate = useNavigate();
   const { updateFormData, formData } = useFormData();

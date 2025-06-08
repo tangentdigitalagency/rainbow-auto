@@ -32,8 +32,7 @@ import AddressTwo from "./form/driverTwo/AddressTwo";
 import IdentityTwo from "./form/driverTwo/IdentityTwo";
 import HistoryTwo from "./form/driverTwo/HistoryTwo";
 import RiskTwo from "./form/driverTwo/RiskTwo";
-import PersonalInfoTwo from "./form/driverTwo/PersonalInformationTWo";
-
+import PersonalTwo from "./form/driverTwo/PersonalInformationTWo";
 // Create a navigation context
 type NavigationContextType = {
   handleFormNavigation: (nextPath: string) => void;
@@ -203,7 +202,7 @@ function AppContent() {
           path="/personal-information-two"
           element={
             <FormTemplate progress={0.2}>
-              <PersonalInfoTwo />
+              <PersonalTwo />
             </FormTemplate>
           }
         />
