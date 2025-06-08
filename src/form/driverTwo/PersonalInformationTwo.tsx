@@ -73,7 +73,12 @@ export default function PersonalInfoTwo() {
         animate="visible"
         variants={fadeIn}
       >
-        <h2 className="text-xl font-semibold">First, Lets Get to Know You!</h2>
+        <h2 className="text-xl font-semibold">
+          Can you tell us a little about {formData.driverTwoFirstName}?
+        </h2>
+        <p className="mb-6 text-sm text-gray-600">
+          This information will help us find the best insurance options for you.
+        </p>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <motion.div

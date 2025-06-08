@@ -73,7 +73,7 @@ export default function Identity() {
       variants={fadeIn}
     >
       <h2 className="mb-2 text-2xl font-semibold">
-        Now let's get to know you a little better, {formData.firstName}!
+        Can you tell us a little about {formData.driverTwoFirstName}?
         <p className="mb-6 text-sm text-gray-600">
           This information will help us find the best insurance options for you.
         </p>
