@@ -28,7 +28,7 @@ import { CarMakeTwo } from "./form/driverTwo/CarMakeTwo";
 import { CarYearTwo } from "./form/driverTwo/CarTwoYear";
 import VehicleDataTwo from "./form/driverTwo/VehicleDataTwo";
 import VehicleUsageTwo from "./form/driverTwo/VehicleUsageTwo";
-import PersonalInfoTwo from "./form/driverTwo/PersonalInformationTWo";
+import PersonalInfoTwo from "./form/driverTwo/PersonalInformationTwo";
 import AddressTwo from "./form/driverTwo/AddressTwo";
 import IdentityTwo from "./form/driverTwo/IdentityTwo";
 import HistoryTwo from "./form/driverTwo/HistoryTwo";
