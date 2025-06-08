@@ -52,7 +52,7 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="pt-8 mt-8 text-center border-t border-gray-200">
-          <p>&copy; 2024 Surety Auto Group. All rights reserved.</p>
+          <p>&copy; 2025 Rainbow Insurance. All rights reserved.</p>
         </div>
       </div>
 

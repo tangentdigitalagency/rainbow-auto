@@ -33,8 +33,8 @@ export interface FormData {
 
   additionalDrivers?: boolean;
 
-  currentlyInsured?: string;
-  currentProvider?: string;
+  currentlyInsured?: string; //done
+  currentProvider?: string; //done
   bodily?: string;
   property?: string;
   requestedCoverageType?: string;
@@ -87,6 +87,7 @@ export interface FormData {
   vehicleTwoOneWayDistance?: string;
   vehicleTwoAnnualMiles?: string;
   vehicleTwoStorage?: string;
+  vehicleTwoSecurity?: string;
   vehicleTwoComprehensive?: string;
   vehicleTwoCollision?: string;
 

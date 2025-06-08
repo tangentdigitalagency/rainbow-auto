@@ -18,6 +18,16 @@ import { CarModel } from "./form/CarModel";
 import VehicleUsage from "./form/VehicleUsage";
 import VehicleData from "./form/VehicleData";
 import VehicleProfile from "./form/VehicleProfile";
+import CurrentInsurance from "./form/CurrentInsurance";
+import InsuranceDetails from "./form/InsuranceDetails";
+import Profile from "./form/Profile";
+import Submitting from "./form/Submitting";
+import ThankYouPage from "./form/ThankYou";
+import { CarModelTwo } from "./form/driverTwo/CarModelTwo";
+import { CarMakeTwo } from "./form/driverTwo/CarMakeTwo";
+import { CarYearTwo } from "./form/driverTwo/CarTwoYear";
+import VehicleDataTwo from "./form/driverTwo/VehicleDataTwo";
+import VehicleUsageTwo from "./form/driverTwo/VehicleUsageTwo";
 
 // Create a navigation context
 type NavigationContextType = {
@@ -59,14 +69,12 @@ function AppContent() {
   }, [refetch, formData.lastCompletedStep]);
 
   const handleFormNavigation = (nextPath: string) => {
-    const searchParams = new URLSearchParams(location.search);
+    const searchParams = new URLSearchParams(window.location.search);
     const returnTo = searchParams.get("returnTo");
 
     if (returnTo) {
-      // If there's a returnTo parameter, navigate back to that page
       navigate(`/${returnTo}`);
     } else {
-      // If no returnTo parameter, proceed to the next step
       navigate(nextPath);
     }
   };
@@ -167,6 +175,33 @@ function AppContent() {
         />
 
         <Route
+          path="/car-year-two"
+          element={
+            <FormTemplate progress={80}>
+              <CarYearTwo />
+            </FormTemplate>
+          }
+        />
+
+        <Route
+          path="/car-make-two"
+          element={
+            <FormTemplate progress={80}>
+              <CarMakeTwo />
+            </FormTemplate>
+          }
+        />
+
+        <Route
+          path="/car-model-two"
+          element={
+            <FormTemplate progress={80}>
+              <CarModelTwo />
+            </FormTemplate>
+          }
+        />
+
+        <Route
           path="/vehicle-data"
           element={
             <FormTemplate progress={90}>
@@ -184,11 +219,70 @@ function AppContent() {
         />
 
         <Route
+          path="/vehicle-data-two"
+          element={
+            <FormTemplate progress={100}>
+              <VehicleDataTwo />
+            </FormTemplate>
+          }
+        />
+
+        <Route
+          path="/vehicle-usage-two"
+          element={
+            <FormTemplate progress={100}>
+              <VehicleUsageTwo />
+            </FormTemplate>
+          }
+        />
+
+        <Route
           path="/vehicle-profile"
           element={
             <FormTemplate progress={100}>
               <VehicleProfile />
             </FormTemplate>
+          }
+        />
+        <Route
+          path="/current-insurance"
+          element={
+            <FormTemplate progress={100}>
+              <CurrentInsurance />
+            </FormTemplate>
+          }
+        />
+        <Route
+          path="/insurance-details"
+          element={
+            <FormTemplate progress={100}>
+              <InsuranceDetails />
+            </FormTemplate>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <FormTemplate progress={100}>
+              <Profile />
+            </FormTemplate>
+          }
+        />
+        <Route
+          path="/submitting"
+          element={
+            <MainLayout>
+              <Submitting />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/thank-you"
+          element={
+            <MainLayout>
+              <ThankYouPage />
+            </MainLayout>
           }
         />
       </Routes>
