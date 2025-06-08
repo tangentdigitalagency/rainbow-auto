@@ -12,7 +12,6 @@ import Lottie from "lottie-react";
 import carInsuranceAnimation from "@/assets/car-insurance.json";
 import useFormData from "@/data/useFormData";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowRight, RefreshCcw } from "lucide-react";
 
 interface ContinuationModalProps {
   isOpen: boolean;
@@ -43,6 +42,22 @@ const ContinuationModal: React.FC<ContinuationModalProps> = ({
       "/vehicle-data": "Vehicle Data",
       "/vehicle-usage": "Vehicle Usage",
       "/vehicle-profile": "Vehicle Profile",
+      "/personal-information-two": "Personal Information",
+      "/address-two": "Address",
+      "/identity-two": "Identity",
+      "/history-two": "Driving History",
+      "/risk-two": "Risk Assessment",
+      "/car-year-two": "Vehicle Year",
+      "/car-make-two": "Vehicle Make",
+      "/car-model-two": "Vehicle Model",
+      "/vehicle-data-two": "Vehicle Data",
+      "/vehicle-usage-two": "Vehicle Usage",
+      "/vehicle-profile-two": "Vehicle Profile",
+      "/current-insurance": "Current Insurance",
+      "/insurance-details": "Insurance Details",
+      "/profile": "Profile",
+      "/submitting": "Submitting",
+      "/thank-you": "Thank You",
     };
     return (
       steps[path] ||
@@ -68,10 +83,27 @@ const ContinuationModal: React.FC<ContinuationModalProps> = ({
       "/vehicle-data",
       "/vehicle-usage",
       "/vehicle-profile",
+      "/personal-information-two",
+      "/address-two",
+      "/identity-two",
+      "/history-two",
+      "/risk-two",
+      "/car-year-two",
+      "/car-make-two",
+      "/car-model-two",
+      "/vehicle-data-two",
+      "/vehicle-usage-two",
+      "/vehicle-profile-two",
+      "/current-insurance",
+      "/insurance-details",
+      "/profile",
+      "/submitting",
+      "/thank-you",
     ];
 
     // Normalize the path to ensure it starts with a slash
     const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
     const currentIndex = stepOrder.indexOf(normalizedPath);
 
     // If the path is not found, try to find the closest matching step
@@ -108,7 +140,7 @@ const ContinuationModal: React.FC<ContinuationModalProps> = ({
       backdrop="blur"
       size="2xl"
       classNames={{
-        base: "bg-background/80 backdrop-blur-md",
+        base: "bg-background",
         header: "border-b-[1px] border-divider",
         footer: "border-t-[1px] border-divider",
         closeButton: "hover:bg-default-100/80 active:bg-default-100/90",
@@ -134,15 +166,28 @@ const ContinuationModal: React.FC<ContinuationModalProps> = ({
             </div>
 
             <div className="w-full max-w-md space-y-4">
-              <div className="space-y-2 text-center">
-                <h3 className="text-2xl font-semibold">
-                  Continue from {getStepName(currentStep)}
-                </h3>
-                <p className="text-sm text-default-500">
-                  You were in the middle of completing your insurance quote.
-                  Would you like to continue where you left off?
-                </p>
-              </div>
+              {currentStep === "/thank-you" ? (
+                <div className="space-y-2 text-center">
+                  <h3 className="text-2xl font-semibold">
+                    Ready for Another Quote?
+                  </h3>
+                  <p className="text-sm text-default-500">
+                    We see you've already received a quote. Would you like to
+                    start fresh and get another quote? We're here to help you
+                    find the best coverage for your needs.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2 text-center">
+                  <h3 className="text-2xl font-semibold">
+                    Continue from {getStepName(currentStep)}
+                  </h3>
+                  <p className="text-sm text-default-500">
+                    You were in the middle of completing your insurance quote.
+                    Would you like to continue where you left off?
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
@@ -186,23 +231,17 @@ const ContinuationModal: React.FC<ContinuationModalProps> = ({
             </div>
           </div>
         </ModalBody>
-        <ModalFooter className="flex justify-between">
+        <ModalFooter>
           <Button
-            color="default"
-            variant="flat"
+            color="danger"
+            variant="light"
             onPress={onClose}
-            className="w-full sm:w-auto"
-            startContent={<RefreshCcw />}
+            className="font-medium"
           >
             Start Over
           </Button>
-          <Button
-            color="primary"
-            onPress={onContinue}
-            className="w-full sm:w-auto"
-            startContent={<ArrowRight />}
-          >
-            Continue Quote
+          <Button color="primary" onPress={onContinue} className="font-medium">
+            {currentStep === "/thank-you" ? "Get New Quote" : "Continue"}
           </Button>
         </ModalFooter>
       </ModalContent>
