@@ -7,7 +7,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   bodilyInjuryOptions,
   propertyDamageOptions,
-  coverageTypes,
 } from "../lib/insuranceTypes";
 
 type InsuranceDetailsData = {
@@ -70,7 +69,7 @@ export default function InsuranceDetails() {
     defaultValues: {
       bodily: formData.bodily || "",
       property: formData.property || "",
-      requestedCoverageType: formData.requestedCoverageType || "",
+      requestedCoverageType: "Basic",
     },
   });
 
@@ -106,14 +105,6 @@ export default function InsuranceDetails() {
         limits.
       </p>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <CoverageSelect
-          control={control}
-          options={coverageTypes}
-          name="requestedCoverageType"
-          label="Coverage Type"
-          placeholder="Select coverage type"
-        />
-
         <CoverageSelect
           control={control}
           options={bodilyInjuryOptions}

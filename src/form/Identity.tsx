@@ -101,6 +101,7 @@ export default function Identity() {
                 >
                   <SelectItem key="M">Male</SelectItem>
                   <SelectItem key="F">Female</SelectItem>
+                  <SelectItem key="O">Non-Binary</SelectItem>
                 </Select>
               )}
             />

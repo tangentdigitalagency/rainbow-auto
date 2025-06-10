@@ -65,10 +65,6 @@ export const propertyDamageOptions = [
     value: "10000",
   },
   {
-    label: "$100,000",
-    value: "100000",
-  },
-  {
     label: "$15,000",
     value: "15000",
   },
@@ -99,6 +95,10 @@ export const propertyDamageOptions = [
   {
     label: "$75,000",
     value: "75000",
+  },
+  {
+    label: "$100,000",
+    value: "100000",
   },
 ];
 
