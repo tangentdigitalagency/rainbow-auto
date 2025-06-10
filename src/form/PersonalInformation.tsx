@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useFormData from "@/data/useFormData";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigation } from "@/App";
 
 type PersonalInfo = {
@@ -24,19 +24,53 @@ export default function PersonalInfo() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const userId = localStorage.getItem("userId");
 
+  // Function to convert YYYY-MM-DD to MM/DD/YYYY
+  const formatDateForDisplay = (dateString: string | Date | undefined) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    return date.toLocaleDateString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  // Function to convert MM/DD/YYYY to YYYY-MM-DD
+  const formatDateForDatabase = (dateString: string): Date | undefined => {
+    if (!dateString) return undefined;
+    const [month, day, year] = dateString.split("/");
+    return new Date(`${year}-${month}-${day}`);
+  };
+
   const {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<PersonalInfo>({
     defaultValues: {
       firstName: formData.firstName || "",
       lastName: formData.lastName || "",
       phone: formData.phone || "",
       email: formData.email || "",
-      driverOneDOB: formData.driverOneDOB?.toString() || "",
+      driverOneDOB: formatDateForDisplay(formData.driverOneDOB),
     },
   });
+
+  // Effect to update form when formData changes
+  useEffect(() => {
+    if (formData && Object.keys(formData).length > 0) {
+      console.log("Updating form with data:", formData);
+      reset({
+        firstName: formData.firstName || "",
+        lastName: formData.lastName || "",
+        phone: formData.phone || "",
+        email: formData.email || "",
+        driverOneDOB: formatDateForDisplay(formData.driverOneDOB),
+      });
+    }
+  }, [formData, reset]);
 
   const onSubmit: SubmitHandler<PersonalInfo> = async (data) => {
     setIsSubmitting(true);
@@ -44,7 +78,7 @@ export default function PersonalInfo() {
     if (userId) {
       updateFormData({
         ...data,
-        driverOneDOB: new Date(data.driverOneDOB),
+        driverOneDOB: formatDateForDatabase(data.driverOneDOB),
         driverOneFirstName: data.firstName,
         driverOneLastName: data.lastName,
         lastCompletedAt: new Date().toISOString(),
@@ -252,12 +286,12 @@ export default function PersonalInfo() {
             <span className="text-sm text-foreground">
               By clicking Continue below, I expressly provide my E-SIGN
               signature and consent to receive marketing calls, texts, and
-              emails regarding insurance, from or on behalf of USAA at the phone
-              number and email address I provided, including via automatic
-              telephone dialing system or artificial or prerecorded voice
-              messages, even if my number is on a federal, state, or company
-              Do-Not-Call List. I understand that my consent is not a condition
-              of purchasing any goods or services. By clicking Get Quote, above,
+              emails regarding insurance, from or on behalf of Rainbow Insurance
+              at the phone number and email address I provided, including via
+              automatic telephone dialing system or artificial or prerecorded
+              voice messages, even if my number is on a federal, state, or
+              company Do-Not-Call List. I understand that my consent is not a
+              condition of purchasing any goods or services. By Continue, below,
               I affirm that I have read and agree to the{" "}
               <a
                 className="text-blue-600 hover:underline"

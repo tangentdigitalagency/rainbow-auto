@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Button,
   Chip,
@@ -8,6 +8,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Badge,
 } from "@heroui/react";
 import useFormData from "@/data/useFormData";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,18 +26,127 @@ import {
   Plus,
   Phone,
   Trash2,
+  AlertCircle,
 } from "lucide-react";
 import Avatar, { genConfig } from "react-nice-avatar";
 import { useEffect, useState } from "react";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { formData, deleteDriverTwo, deleteVehicleTwo, isLoading } =
+  const [searchParams] = useSearchParams();
+  const uuid = searchParams.get("userId");
+  const { formData, deleteDriverTwo, deleteVehicleTwo, isLoading, refetch } =
     useFormData();
   const [showBottomBar, setShowBottomBar] = useState(false);
   const [isDeleteDriverModalOpen, setIsDeleteDriverModalOpen] = useState(false);
   const [isDeleteVehicleModalOpen, setIsDeleteVehicleModalOpen] =
     useState(false);
+
+  useEffect(() => {
+    if (uuid) {
+      console.log("Profile: UUID detected, refetching data");
+      refetch();
+    }
+  }, [uuid, refetch]);
+
+  // Function to check if a section has missing required fields
+  const getMissingFields = (section: string) => {
+    if (isLoading) {
+      console.log("Profile: Still loading, skipping missing fields check");
+      return [];
+    }
+
+    console.log("Profile: Checking missing fields for section:", section);
+    const missingFields: string[] = [];
+
+    switch (section) {
+      case "personal":
+        if (!formData.firstName) missingFields.push("First Name");
+        if (!formData.lastName) missingFields.push("Last Name");
+        if (!formData.phone) missingFields.push("Phone");
+        if (!formData.email) missingFields.push("Email");
+        if (!formData.address1) missingFields.push("Address");
+        if (!formData.city) missingFields.push("City");
+        if (!formData.state) missingFields.push("State");
+        if (!formData.zipcode) missingFields.push("ZIP Code");
+        break;
+      case "driver":
+        if (!formData.driverOneFirstName) missingFields.push("First Name");
+        if (!formData.driverOneLastName) missingFields.push("Last Name");
+        if (!formData.driverOneDOB) missingFields.push("Date of Birth");
+        if (!formData.driverOneGender) missingFields.push("Gender");
+        if (!formData.driverOneLicenseState)
+          missingFields.push("License State");
+        if (!formData.driverOneLicenseStatus)
+          missingFields.push("License Status");
+        if (!formData.driverOneResidence) missingFields.push("Residence");
+        if (!formData.driverOneYearAtResidence)
+          missingFields.push("Years at Residence");
+        break;
+      case "vehicle":
+        if (!formData.vehicleOneYear) missingFields.push("Year");
+        if (!formData.vehicleOneMake) missingFields.push("Make");
+        if (!formData.vehicleOneModel) missingFields.push("Model");
+        if (!formData.vehicleOneOwnership) missingFields.push("Ownership");
+        if (!formData.vehicleOnePrimaryUsage)
+          missingFields.push("Primary Usage");
+        if (!formData.vehicleOneAnnualMiles) missingFields.push("Annual Miles");
+        if (!formData.vehicleOneStorage) missingFields.push("Storage");
+        break;
+      case "insurance":
+        if (!formData.currentlyInsured) missingFields.push("Insurance Status");
+        if (formData.currentlyInsured === "Yes" && !formData.currentProvider) {
+          missingFields.push("Current Provider");
+        }
+        if (!formData.requestedCoverageType)
+          missingFields.push("Coverage Type");
+        break;
+    }
+
+    console.log("Profile: Missing fields for section:", section, missingFields);
+    return missingFields;
+  };
+
+  // Function to check if a section is complete
+  const isSectionComplete = (section: string) => {
+    return getMissingFields(section).length === 0;
+  };
+
+  // Function to render warning badge for incomplete sections
+  const renderWarningBadge = (section: string) => {
+    if (isLoading) {
+      console.log("Profile: Still loading, skipping warning badge");
+      return null;
+    }
+
+    const missingFields = getMissingFields(section);
+    if (missingFields.length === 0) return null;
+
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="relative inline-flex ml-2">
+          <Badge
+            content={<AlertCircle className="w-3 h-3" />}
+            color="warning"
+            placement="top-right"
+            shape="circle"
+            size="sm"
+          >
+            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-warning/10">
+              <AlertCircle className="w-4 h-4 text-warning" />
+            </div>
+          </Badge>
+        </div>
+        <div className="flex flex-wrap gap-2 ml-2">
+          {missingFields.map((field, index) => (
+            <Badge key={index} color="warning" variant="flat" size="sm">
+              {field}
+            </Badge>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,10 +176,30 @@ export default function Profile() {
       usage: "/vehicle-usage",
       insurance: "/current-insurance",
       coverage: "/insurance-details",
+      // Secondary driver routes
+      "personal-two": "/personal-information-two",
+      "identity-two": "/identity-two",
+      "history-two": "/history-two",
+      "risk-two": "/risk-two",
+      // Secondary vehicle routes
+      "year-two": "/car-year-two",
+      "make-two": "/car-make-two",
+      "model-two": "/car-model-two",
+      "data-two": "/vehicle-data-two",
+      "usage-two": "/vehicle-usage-two",
     };
 
-    // Add a returnTo parameter to know where to go back to
-    navigate(`${routeMap[section]}?returnTo=profile`);
+    // Get the current userId from URL params
+    const currentUserId = searchParams.get("userId");
+
+    // Add both returnTo and userId parameters
+    const params = new URLSearchParams();
+    params.set("returnTo", "profile");
+    if (currentUserId) {
+      params.set("userId", currentUserId);
+    }
+
+    navigate(`${routeMap[section]}?${params.toString()}`);
   };
 
   const handleDeleteDriver = async () => {
@@ -130,8 +260,10 @@ export default function Profile() {
       "#db2777", // Pink
     ];
 
+    // Handle null/undefined by using a default value
+    const safeName = name || "default";
     // Use the first character of the name to determine the color
-    const index = name.charCodeAt(0) % colors.length;
+    const index = safeName.charCodeAt(0) % colors.length;
     return colors[index];
   };
 
@@ -140,6 +272,22 @@ export default function Profile() {
     animate: { opacity: 1 },
     transition: { duration: 0.5 },
   };
+
+  if (isLoading) {
+    console.log("Profile: Loading state active, showing spinner");
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto border-4 rounded-full border-primary border-t-transparent animate-spin"></div>
+          <p className="mt-4 text-lg text-gray-600">
+            Loading your information...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  console.log("Profile: Rendering with form data:", formData);
 
   return (
     <motion.div
@@ -160,6 +308,11 @@ export default function Profile() {
           size="lg"
           variant="shadow"
           onPress={() => navigate("/submitting")}
+          isDisabled={
+            !isSectionComplete("driver") ||
+            !isSectionComplete("vehicle") ||
+            !isSectionComplete("insurance")
+          }
         >
           Get My Quote!
         </Button>
@@ -183,11 +336,14 @@ export default function Profile() {
             </Button>
           )}
         </div>
+        {renderWarningBadge("driver")}
         <Divider />
 
         {/* Primary Driver */}
         <motion.div
-          className="p-8 transition-all duration-200 border border-gray-200 shadow-sm rounded-xl bg-content1 hover:shadow-lg hover:border-primary/20"
+          className={`p-8 transition-all duration-200 border shadow-sm rounded-xl bg-content1 hover:shadow-lg hover:border-primary/20 ${
+            !isSectionComplete("driver") ? "border-warning" : "border-gray-200"
+          }`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -231,42 +387,70 @@ export default function Profile() {
               Click any section below to quickly edit your information
             </p>
             <div className="flex flex-wrap gap-3">
-              <Chip
-                variant="flat"
-                color="primary"
-                startContent={<User className="w-4 h-4" />}
-                className="cursor-pointer"
-                onClick={() => handleNavigateToSection("personal")}
-              >
-                Personal Information
-              </Chip>
-              <Chip
-                variant="flat"
-                color="secondary"
-                startContent={<CreditCard className="w-4 h-4" />}
-                className="cursor-pointer"
-                onClick={() => handleNavigateToSection("identity")}
-              >
-                Identity & History
-              </Chip>
-              <Chip
-                variant="flat"
-                color="warning"
-                startContent={<AlertTriangle className="w-4 h-4" />}
-                className="cursor-pointer"
-                onClick={() => handleNavigateToSection("risk")}
-              >
-                Risk Information
-              </Chip>
-              <Chip
-                variant="flat"
-                color="success"
-                startContent={<FileText className="w-4 h-4" />}
-                className="cursor-pointer"
-                onClick={() => handleNavigateToSection("history")}
-              >
-                Driving History
-              </Chip>
+              <div className="relative inline-block">
+                <Chip
+                  variant="flat"
+                  color="primary"
+                  startContent={<User className="w-4 h-4" />}
+                  className="cursor-pointer"
+                  onClick={() => handleNavigateToSection("personal")}
+                >
+                  Personal Information
+                </Chip>
+                {getMissingFields("personal").length > 0 && (
+                  <span className="absolute z-10 flex items-center justify-center p-1 rounded-full -top-1 -right-1 bg-warning">
+                    <AlertTriangle className="w-3 h-3 text-black" />
+                  </span>
+                )}
+              </div>
+              <div className="relative inline-block">
+                <Chip
+                  variant="flat"
+                  color="secondary"
+                  startContent={<CreditCard className="w-4 h-4" />}
+                  className="cursor-pointer"
+                  onClick={() => handleNavigateToSection("identity")}
+                >
+                  Identity & History
+                </Chip>
+                {getMissingFields("identity").length > 0 && (
+                  <span className="absolute z-10 flex items-center justify-center p-1 rounded-full -top-1 -right-1 bg-warning">
+                    <AlertTriangle className="w-3 h-3 text-black" />
+                  </span>
+                )}
+              </div>
+              <div className="relative inline-block">
+                <Chip
+                  variant="flat"
+                  color="warning"
+                  startContent={<AlertTriangle className="w-4 h-4" />}
+                  className="cursor-pointer"
+                  onClick={() => handleNavigateToSection("risk")}
+                >
+                  Risk Information
+                </Chip>
+                {getMissingFields("risk").length > 0 && (
+                  <span className="absolute z-10 flex items-center justify-center p-1 rounded-full -top-1 -right-1 bg-warning">
+                    <AlertTriangle className="w-3 h-3 text-black" />
+                  </span>
+                )}
+              </div>
+              <div className="relative inline-block">
+                <Chip
+                  variant="flat"
+                  color="success"
+                  startContent={<FileText className="w-4 h-4" />}
+                  className="cursor-pointer"
+                  onClick={() => handleNavigateToSection("history")}
+                >
+                  Driving History
+                </Chip>
+                {getMissingFields("history").length > 0 && (
+                  <span className="absolute z-10 flex items-center justify-center p-1 rounded-full -top-1 -right-1 bg-warning">
+                    <AlertTriangle className="w-3 h-3 text-black" />
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </motion.div>
@@ -350,42 +534,70 @@ export default function Profile() {
                 Click any section below to quickly edit your information
               </p>
               <div className="flex flex-wrap gap-3">
-                <Chip
-                  variant="flat"
-                  color="primary"
-                  startContent={<User className="w-4 h-4" />}
-                  className="cursor-pointer"
-                  onClick={() => handleNavigateToSection("personal")}
-                >
-                  Personal Information
-                </Chip>
-                <Chip
-                  variant="flat"
-                  color="secondary"
-                  startContent={<CreditCard className="w-4 h-4" />}
-                  className="cursor-pointer"
-                  onClick={() => handleNavigateToSection("identity")}
-                >
-                  Identity & History
-                </Chip>
-                <Chip
-                  variant="flat"
-                  color="warning"
-                  startContent={<AlertTriangle className="w-4 h-4" />}
-                  className="cursor-pointer"
-                  onClick={() => handleNavigateToSection("risk")}
-                >
-                  Risk Information
-                </Chip>
-                <Chip
-                  variant="flat"
-                  color="success"
-                  startContent={<FileText className="w-4 h-4" />}
-                  className="cursor-pointer"
-                  onClick={() => handleNavigateToSection("history")}
-                >
-                  Driving History
-                </Chip>
+                <div className="relative inline-block">
+                  <Chip
+                    variant="flat"
+                    color="primary"
+                    startContent={<User className="w-4 h-4" />}
+                    className="cursor-pointer"
+                    onClick={() => handleNavigateToSection("personal-two")}
+                  >
+                    Personal Information
+                  </Chip>
+                  {getMissingFields("personal-two").length > 0 && (
+                    <span className="absolute z-10 flex items-center justify-center p-1 rounded-full -top-1 -right-1 bg-warning">
+                      <AlertTriangle className="w-3 h-3 text-black" />
+                    </span>
+                  )}
+                </div>
+                <div className="relative inline-block">
+                  <Chip
+                    variant="flat"
+                    color="secondary"
+                    startContent={<CreditCard className="w-4 h-4" />}
+                    className="cursor-pointer"
+                    onClick={() => handleNavigateToSection("identity-two")}
+                  >
+                    Identity & History
+                  </Chip>
+                  {getMissingFields("identity-two").length > 0 && (
+                    <span className="absolute z-10 flex items-center justify-center p-1 rounded-full -top-1 -right-1 bg-warning">
+                      <AlertTriangle className="w-3 h-3 text-black" />
+                    </span>
+                  )}
+                </div>
+                <div className="relative inline-block">
+                  <Chip
+                    variant="flat"
+                    color="warning"
+                    startContent={<AlertTriangle className="w-4 h-4" />}
+                    className="cursor-pointer"
+                    onClick={() => handleNavigateToSection("risk-two")}
+                  >
+                    Risk Information
+                  </Chip>
+                  {getMissingFields("risk-two").length > 0 && (
+                    <span className="absolute z-10 flex items-center justify-center p-1 rounded-full -top-1 -right-1 bg-warning">
+                      <AlertTriangle className="w-3 h-3 text-black" />
+                    </span>
+                  )}
+                </div>
+                <div className="relative inline-block">
+                  <Chip
+                    variant="flat"
+                    color="success"
+                    startContent={<FileText className="w-4 h-4" />}
+                    className="cursor-pointer"
+                    onClick={() => handleNavigateToSection("history-two")}
+                  >
+                    Driving History
+                  </Chip>
+                  {getMissingFields("history-two").length > 0 && (
+                    <span className="absolute z-10 flex items-center justify-center p-1 rounded-full -top-1 -right-1 bg-warning">
+                      <AlertTriangle className="w-3 h-3 text-black" />
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -410,11 +622,14 @@ export default function Profile() {
             </Button>
           )}
         </div>
+        {renderWarningBadge("vehicle")}
         <Divider />
 
         {/* Primary Vehicle */}
         <motion.div
-          className="p-8 transition-all duration-200 border border-gray-200 shadow-sm rounded-xl bg-content1 hover:shadow-lg hover:border-primary/20"
+          className={`p-8 transition-all duration-200 border shadow-sm rounded-xl bg-content1 hover:shadow-lg hover:border-primary/20 ${
+            !isSectionComplete("vehicle") ? "border-warning" : "border-gray-200"
+          }`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -583,7 +798,7 @@ export default function Profile() {
                   color="secondary"
                   startContent={<Tag className="w-4 h-4" />}
                   className="cursor-pointer"
-                  onClick={() => handleNavigateToSection("make")}
+                  onClick={() => handleNavigateToSection("make-two")}
                 >
                   Make & Model
                 </Chip>
@@ -592,7 +807,7 @@ export default function Profile() {
                   color="warning"
                   startContent={<Building className="w-4 h-4" />}
                   className="cursor-pointer"
-                  onClick={() => handleNavigateToSection("data")}
+                  onClick={() => handleNavigateToSection("data-two")}
                 >
                   Ownership & Storage
                 </Chip>
@@ -601,7 +816,7 @@ export default function Profile() {
                   color="success"
                   startContent={<Gauge className="w-4 h-4" />}
                   className="cursor-pointer"
-                  onClick={() => handleNavigateToSection("usage")}
+                  onClick={() => handleNavigateToSection("usage-two")}
                 >
                   Usage & Mileage
                 </Chip>
@@ -619,10 +834,15 @@ export default function Profile() {
             <h2 className="text-xl font-semibold">Insurance</h2>
           </div>
         </div>
+        {renderWarningBadge("insurance")}
         <Divider />
 
         <motion.div
-          className="p-8 transition-all duration-200 border border-gray-200 shadow-sm rounded-xl bg-content1 hover:shadow-lg hover:border-primary/20"
+          className={`p-8 transition-all duration-200 border shadow-sm rounded-xl bg-content1 hover:shadow-lg hover:border-primary/20 ${
+            !isSectionComplete("insurance")
+              ? "border-warning"
+              : "border-gray-200"
+          }`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -695,12 +915,18 @@ export default function Profile() {
         </motion.div>
 
         <div className="flex justify-between w-full">
+          {}
           <Button
             color="primary"
             size="lg"
             variant="shadow"
             className="w-full"
             onPress={() => navigate("/submitting")}
+            isDisabled={
+              !isSectionComplete("driver") ||
+              !isSectionComplete("vehicle") ||
+              !isSectionComplete("insurance")
+            }
           >
             Get My Quote!
           </Button>
@@ -741,6 +967,11 @@ export default function Profile() {
                   size="lg"
                   variant="shadow"
                   onPress={() => navigate("/submitting")}
+                  isDisabled={
+                    !isSectionComplete("driver") ||
+                    !isSectionComplete("vehicle") ||
+                    !isSectionComplete("insurance")
+                  }
                 >
                   Get My Quote!
                 </Button>

@@ -2,6 +2,8 @@ import { FormData } from "@/types/formData";
 import { supabase } from "@/utils/supabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
+import { useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
 
 const getOrCreateUserId = () => {
   let userId = localStorage.getItem("userId");
@@ -12,15 +14,21 @@ const getOrCreateUserId = () => {
       60 * 60 * 24 * 365
     }; path=/; SameSite=Strict`;
   }
+
+  console.log("userId", userId);
   return userId;
 };
 
 const fetchFormData = async (userId: string): Promise<FormData> => {
+  console.log("Fetching form data with userId:", userId);
+
   const { data, error } = await supabase
     .from("formSubmissions")
     .select("*")
     .eq("userId", userId)
     .single();
+
+  console.log("Fetched data:", data);
 
   if (error) {
     console.error("Error fetching form data:", error);
@@ -28,23 +36,67 @@ const fetchFormData = async (userId: string): Promise<FormData> => {
   }
 
   if (data) {
+    console.log("Fetched form data:", data);
     const { ...formDataFields } = data;
     return formDataFields as FormData;
   }
 
+  console.log("No form data found");
   return {};
 };
 
 const useFormData = () => {
   const userId = getOrCreateUserId();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const urlUserId = searchParams.get("userId");
 
-  const { data: formData = {}, refetch } = useQuery<FormData>({
-    queryKey: ["formData", userId],
-    queryFn: () => fetchFormData(userId),
-    staleTime: Infinity,
+  // Effect to save URL userId data to local storage when first loaded
+  useEffect(() => {
+    if (urlUserId) {
+      console.log("URL userId detected, saving to local storage");
+      localStorage.setItem("userId", urlUserId);
+      // Also save to cookie for persistence
+      document.cookie = `userId=${urlUserId}; max-age=${
+        60 * 60 * 24 * 365
+      }; path=/; SameSite=Strict`;
+    }
+  }, [urlUserId]);
+
+  const {
+    data: formData = {},
+    isLoading,
+    refetch,
+  } = useQuery<FormData>({
+    queryKey: ["formData", urlUserId || userId],
+    queryFn: () => fetchFormData(urlUserId || userId),
+    staleTime: 0,
     gcTime: Infinity,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    enabled: true,
   });
+
+  // Effect to refetch when URL userId changes or component mounts
+  useEffect(() => {
+    console.log("Refetching form data...");
+    refetch();
+  }, [urlUserId, refetch]);
+
+  // Effect to ensure form data is properly cached
+  useEffect(() => {
+    if (formData && Object.keys(formData).length > 0) {
+      console.log("Caching form data:", formData);
+      queryClient.setQueryData(
+        ["formData", urlUserId || userId],
+        (oldData: FormData | undefined) => ({
+          ...oldData,
+          ...formData,
+        })
+      );
+    }
+  }, [formData, queryClient, urlUserId, userId]);
 
   const mutation = useMutation({
     mutationFn: async (
@@ -53,24 +105,30 @@ const useFormData = () => {
       const updatedData = {
         ...formData,
         ...newData,
-        userId,
+        userId: urlUserId || userId,
         lastCompletedAt: new Date().toISOString(),
         lastCompletedStep:
           newData.lastCompletedStep || formData.lastCompletedStep,
       };
 
+      console.log("Updating form data:", updatedData);
+
       const { data, error } = await supabase
         .from("formSubmissions")
         .upsert(updatedData, { onConflict: "userId" });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating form data:", error);
+        throw error;
+      }
 
-      console.log("updated DB", data);
+      console.log("Successfully updated DB:", data);
       return data;
     },
     onSuccess: (_, variables) => {
+      console.log("Mutation successful, updating cache");
       queryClient.setQueryData(
-        ["formData", userId],
+        ["formData", urlUserId || userId],
         (oldData: FormData | undefined) => ({
           ...oldData,
           ...variables,
@@ -119,7 +177,7 @@ const useFormData = () => {
 
     // Update local cache
     queryClient.setQueryData(
-      ["formData", userId],
+      ["formData", urlUserId || userId],
       (oldData: FormData | undefined) => {
         if (!oldData) return oldData;
         const newData = { ...oldData };
@@ -170,7 +228,7 @@ const useFormData = () => {
 
     // Update local cache
     queryClient.setQueryData(
-      ["formData", userId],
+      ["formData", urlUserId || userId],
       (oldData: FormData | undefined) => {
         if (!oldData) return oldData;
         const newData = { ...oldData };
@@ -202,7 +260,7 @@ const useFormData = () => {
     updateFormData,
     deleteDriverTwo,
     deleteVehicleTwo,
-    isLoading: mutation.isPending,
+    isLoading: mutation.isPending || isLoading,
     refetch,
   };
 };
