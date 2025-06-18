@@ -106,6 +106,7 @@ const useFormData = () => {
         ...formData,
         ...newData,
         userId: urlUserId || userId,
+
         lastCompletedAt: new Date().toISOString(),
         lastCompletedStep:
           newData.lastCompletedStep || formData.lastCompletedStep,
