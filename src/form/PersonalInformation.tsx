@@ -24,25 +24,6 @@ export default function PersonalInfo() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const userId = localStorage.getItem("userId");
 
-  // Function to convert YYYY-MM-DD to MM/DD/YYYY
-  const formatDateForDisplay = (dateString: string | Date | undefined) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "";
-    return date.toLocaleDateString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    });
-  };
-
-  // Function to convert MM/DD/YYYY to YYYY-MM-DD
-  const formatDateForDatabase = (dateString: string): Date | undefined => {
-    if (!dateString) return undefined;
-    const [month, day, year] = dateString.split("/");
-    return new Date(`${year}-${month}-${day}`);
-  };
-
   const {
     control,
     handleSubmit,
@@ -54,7 +35,7 @@ export default function PersonalInfo() {
       lastName: formData.lastName || "",
       phone: formData.phone || "",
       email: formData.email || "",
-      driverOneDOB: formatDateForDisplay(formData.driverOneDOB),
+      driverOneDOB: formData.driverOneDOB?.toString() || "",
     },
   });
 
@@ -67,7 +48,7 @@ export default function PersonalInfo() {
         lastName: formData.lastName || "",
         phone: formData.phone || "",
         email: formData.email || "",
-        driverOneDOB: formatDateForDisplay(formData.driverOneDOB),
+        driverOneDOB: formData.driverOneDOB?.toString() || "",
       });
     }
   }, [formData, reset]);
@@ -78,14 +59,17 @@ export default function PersonalInfo() {
     if (userId) {
       updateFormData({
         ...data,
-        driverOneDOB: formatDateForDatabase(data.driverOneDOB),
+        driverOneDOB: new Date(data.driverOneDOB),
         driverOneFirstName: data.firstName,
         driverOneLastName: data.lastName,
         lastCompletedAt: new Date().toISOString(),
         lastCompletedStep: location.pathname,
       });
 
-      console.log(data);
+      console.log("Form data being saved:", {
+        ...data,
+        driverOneDOB: new Date(data.driverOneDOB),
+      });
     }
 
     handleFormNavigation("/address");

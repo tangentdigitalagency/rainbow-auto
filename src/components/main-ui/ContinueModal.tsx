@@ -55,6 +55,7 @@ const ContinuationModal: React.FC<ContinuationModalProps> = ({
       "/vehicle-profile-two": "Vehicle Profile",
       "/current-insurance": "Current Insurance",
       "/insurance-details": "Insurance Details",
+      "/policy": "Policy Details",
       "/profile": "Profile",
       "/submitting": "Submitting",
       "/thank-you": "Thank You",

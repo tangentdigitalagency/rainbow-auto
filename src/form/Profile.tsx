@@ -101,6 +101,18 @@ export default function Profile() {
         if (!formData.requestedCoverageType)
           missingFields.push("Coverage Type");
         break;
+      case "policy":
+        if (!formData.vehicleOneComprehensive)
+          missingFields.push("Vehicle 1 Comprehensive");
+        if (!formData.vehicleOneCollision)
+          missingFields.push("Vehicle 1 Collision");
+        if (formData.vehicleTwoMake) {
+          if (!formData.vehicleTwoComprehensive)
+            missingFields.push("Vehicle 2 Comprehensive");
+          if (!formData.vehicleTwoCollision)
+            missingFields.push("Vehicle 2 Collision");
+        }
+        break;
     }
 
     console.log("Profile: Missing fields for section:", section, missingFields);
@@ -176,6 +188,7 @@ export default function Profile() {
       usage: "/vehicle-usage",
       insurance: "/current-insurance",
       coverage: "/insurance-details",
+      policy: "/policy",
       // Secondary driver routes
       "personal-two": "/personal-information-two",
       "identity-two": "/identity-two",
@@ -914,6 +927,78 @@ export default function Profile() {
           </div>
         </motion.div>
 
+        <Divider />
+
+        {/* Policy Section */}
+        <motion.div
+          className={`p-8 transition-all duration-200 border shadow-sm rounded-xl bg-content1 hover:shadow-lg hover:border-primary/20 ${
+            !isSectionComplete("policy") ? "border-warning" : "border-gray-200"
+          }`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex items-center space-x-6">
+              <div className="relative">
+                <div
+                  className="flex items-center justify-center w-20 h-20 overflow-hidden rounded-full ring-4 ring-primary/5"
+                  style={{
+                    backgroundColor: `${generateBackgroundColor("policy")}20`,
+                  }}
+                >
+                  <Shield className="w-12 h-12 text-primary" />
+                </div>
+                <div className="absolute bottom-0 right-0 p-1.5 rounded-full bg-success/10 ring-2 ring-content1">
+                  <div className="w-3 h-3 rounded-full bg-success" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold text-foreground">
+                  Policy Deductibles
+                </h3>
+                <p className="text-sm text-default-500">
+                  {formData.currentlyInsured === "Yes" ? "Current" : "Desired"}{" "}
+                  coverage deductibles
+                </p>
+                <div className="flex items-center mt-2 space-x-2">
+                  <span className="px-2.5 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary">
+                    Vehicle 1: ${formData.vehicleOneComprehensive || "Not Set"}
+                    /${formData.vehicleOneCollision || "Not Set"}
+                  </span>
+                  {formData.vehicleTwoMake && (
+                    <span className="px-2.5 py-0.5 text-xs font-medium rounded-full bg-secondary/10 text-secondary">
+                      Vehicle 2: $
+                      {formData.vehicleTwoComprehensive || "Not Set"}/$
+                      {formData.vehicleTwoCollision || "Not Set"}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            {renderWarningBadge("policy")}
+          </div>
+
+          <div className="mt-8 space-y-4">
+            <p className="text-sm text-gray-600">
+              {formData.currentlyInsured === "Yes"
+                ? "Your current comprehensive and collision deductible amounts"
+                : "Select your desired comprehensive and collision deductible amounts"}
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Chip
+                variant="flat"
+                color="primary"
+                startContent={<Shield className="w-4 h-4" />}
+                className="cursor-pointer"
+                onClick={() => handleNavigateToSection("policy")}
+              >
+                Deductible Preferences
+              </Chip>
+            </div>
+          </div>
+        </motion.div>
+
         <div className="flex justify-between w-full">
           {}
           <Button
@@ -925,7 +1010,8 @@ export default function Profile() {
             isDisabled={
               !isSectionComplete("driver") ||
               !isSectionComplete("vehicle") ||
-              !isSectionComplete("insurance")
+              !isSectionComplete("insurance") ||
+              !isSectionComplete("policy")
             }
           >
             Get My Quote!
@@ -970,7 +1056,8 @@ export default function Profile() {
                   isDisabled={
                     !isSectionComplete("driver") ||
                     !isSectionComplete("vehicle") ||
-                    !isSectionComplete("insurance")
+                    !isSectionComplete("insurance") ||
+                    !isSectionComplete("policy")
                   }
                 >
                   Get My Quote!

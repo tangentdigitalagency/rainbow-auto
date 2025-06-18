@@ -78,7 +78,7 @@ export default function InsuranceDetails() {
       ...data,
       lastCompletedStep: "insurance-details",
     });
-    navigate("/profile");
+    navigate("/policy");
   };
 
   const handleBack = () => {

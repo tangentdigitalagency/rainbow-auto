@@ -20,6 +20,7 @@ import VehicleData from "./form/VehicleData";
 import VehicleProfile from "./form/VehicleProfile";
 import CurrentInsurance from "./form/CurrentInsurance";
 import InsuranceDetails from "./form/InsuranceDetails";
+import Policy from "./form/Policy";
 import Profile from "./form/Profile";
 import Submitting from "./form/Submitting";
 import ThankYouPage from "./form/ThankYou";
@@ -310,6 +311,14 @@ function AppContent() {
           element={
             <FormTemplate progress={80}>
               <InsuranceDetails />
+            </FormTemplate>
+          }
+        />
+        <Route
+          path="/policy"
+          element={
+            <FormTemplate progress={85}>
+              <Policy />
             </FormTemplate>
           }
         />
