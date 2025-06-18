@@ -14,7 +14,7 @@ export interface FormData {
 
   driverOneFirstName?: string; //done
   driverOneLastName?: string; //done
-  driverOneDOB?: Date; // ISO date string
+  driverOneDOB?: string; // MM/DD/YYYY format stored as text in database
   driverOneGender?: string; //done
   driverOneResidence?: string; //done
   driverOneYearAtResidence?: string; //done
@@ -61,7 +61,7 @@ export interface FormData {
 
   driverTwoFirstName?: string;
   driverTwoLastName?: string;
-  driverTwoDOB?: Date;
+  driverTwoDOB?: string; // MM/DD/YYYY format stored as text in database
   driverTwoGender?: string;
   driverTwoEmail?: string;
   driverTwoAddress1?: string;

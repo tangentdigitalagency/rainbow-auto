@@ -1,11 +1,12 @@
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { Input, Button, DateInput } from "@heroui/react";
+import { Input, Button } from "@heroui/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useFormData from "@/data/useFormData";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useNavigation } from "@/App";
+import DateInput from "@/components/DateInput";
 
 type PersonalInfo = {
   firstName: string;
@@ -35,7 +36,7 @@ export default function PersonalInfo() {
       lastName: formData.lastName || "",
       phone: formData.phone || "",
       email: formData.email || "",
-      driverOneDOB: formData.driverOneDOB?.toString() || "",
+      driverOneDOB: formData.driverOneDOB || "",
     },
   });
 
@@ -48,7 +49,7 @@ export default function PersonalInfo() {
         lastName: formData.lastName || "",
         phone: formData.phone || "",
         email: formData.email || "",
-        driverOneDOB: formData.driverOneDOB?.toString() || "",
+        driverOneDOB: formData.driverOneDOB || "",
       });
     }
   }, [formData, reset]);
@@ -59,7 +60,7 @@ export default function PersonalInfo() {
     if (userId) {
       updateFormData({
         ...data,
-        driverOneDOB: new Date(data.driverOneDOB),
+        driverOneDOB: data.driverOneDOB, // Keep as MM/DD/YYYY string
         driverOneFirstName: data.firstName,
         driverOneLastName: data.lastName,
         lastCompletedAt: new Date().toISOString(),
@@ -68,7 +69,7 @@ export default function PersonalInfo() {
 
       console.log("Form data being saved:", {
         ...data,
-        driverOneDOB: new Date(data.driverOneDOB),
+        driverOneDOB: data.driverOneDOB,
       });
     }
 
@@ -235,7 +236,30 @@ export default function PersonalInfo() {
                   required: "Date of birth is required",
                   validate: (value) => {
                     if (!value) return true;
-                    const birthDate = new Date(value);
+                    // Parse MM/DD/YYYY format
+                    const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+                    const match = value.match(datePattern);
+
+                    if (!match) {
+                      return "Please enter a valid date (MM/DD/YYYY)";
+                    }
+
+                    const [, month, day, year] = match;
+                    const birthDate = new Date(
+                      parseInt(year),
+                      parseInt(month) - 1,
+                      parseInt(day)
+                    );
+
+                    // Check if date is valid
+                    if (
+                      birthDate.getMonth() !== parseInt(month) - 1 ||
+                      birthDate.getDate() !== parseInt(day) ||
+                      birthDate.getFullYear() !== parseInt(year)
+                    ) {
+                      return "Please enter a valid date";
+                    }
+
                     const today = new Date();
                     const age = today.getFullYear() - birthDate.getFullYear();
                     const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -253,7 +277,8 @@ export default function PersonalInfo() {
                 render={({ field }) => (
                   <DateInput
                     label="Date of Birth"
-                    onChange={(date) => field.onChange(date?.toString())}
+                    value={field.value}
+                    onChange={field.onChange}
                     isInvalid={!!errors.driverOneDOB}
                     errorMessage={errors.driverOneDOB?.message}
                   />

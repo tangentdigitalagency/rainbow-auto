@@ -986,15 +986,22 @@ export default function Profile() {
                 : "Select your desired comprehensive and collision deductible amounts"}
             </p>
             <div className="flex flex-wrap gap-3">
-              <Chip
-                variant="flat"
-                color="primary"
-                startContent={<Shield className="w-4 h-4" />}
-                className="cursor-pointer"
-                onClick={() => handleNavigateToSection("policy")}
-              >
-                Deductible Preferences
-              </Chip>
+              <div className="relative inline-block">
+                <Chip
+                  variant="flat"
+                  color="primary"
+                  startContent={<Shield className="w-4 h-4" />}
+                  className="cursor-pointer"
+                  onClick={() => handleNavigateToSection("policy")}
+                >
+                  Deductible Preferences
+                </Chip>
+                {getMissingFields("policy").length > 0 && (
+                  <span className="absolute z-10 flex items-center justify-center p-1 rounded-full -top-1 -right-1 bg-warning">
+                    <AlertTriangle className="w-3 h-3 text-black" />
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </motion.div>
