@@ -1,13 +1,30 @@
 import { useForm, Controller, Control } from "react-hook-form";
-import { Select, SelectItem, Button } from "@heroui/react";
+import {
+  Select,
+  SelectItem,
+  Button,
+  Card,
+  CardBody,
+  Tooltip,
+  Chip,
+} from "@heroui/react";
 import useFormData from "@/data/useFormData";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Car,
+  TrendingDown,
+  TrendingUp,
+  CheckCircle,
+  HelpCircle,
+} from "lucide-react";
 import {
   vehicleComprehensiveOptions,
   vehicleCollisionOptions,
 } from "../lib/insuranceTypes";
+import { useState } from "react";
 
 type PolicyData = {
   vehicleOneComprehensive: string;
@@ -27,6 +44,25 @@ type DeductibleSelectProps = {
   name: keyof PolicyData;
   label: string;
   placeholder: string;
+  coverageType: "comprehensive" | "collision";
+  vehicleNumber: 1 | 2;
+};
+
+// Popularity data for smart defaults
+const popularityData = {
+  "500": { percentage: 42, label: "Most Popular", isPopular: true },
+  "1000": { percentage: 28, label: "Common", isPopular: true },
+  "250": { percentage: 18, label: "Lower Risk", isPopular: false },
+  "100": { percentage: 8, label: "", isPopular: false },
+  "0": { percentage: 3, label: "", isPopular: false },
+  "50": { percentage: 1, label: "", isPopular: false },
+  "2500": { percentage: 1, label: "Budget", isPopular: false },
+};
+
+// Quick coverage explanations (minimal)
+const quickExplanations = {
+  comprehensive: "Theft, weather, vandalism",
+  collision: "Accident damage",
 };
 
 const DeductibleSelect = ({
@@ -35,59 +71,244 @@ const DeductibleSelect = ({
   name,
   label,
   placeholder,
+  coverageType,
+  vehicleNumber,
 }: DeductibleSelectProps) => {
+  const [selectedValue, setSelectedValue] = useState<string>("");
+
+  const explanation = quickExplanations[coverageType];
+
   return (
-    <Controller
-      control={control}
-      name={name}
-      rules={{ required: `${label} is required` }}
-      render={({ field }) => (
-        <Select
-          {...field}
-          label={label}
-          placeholder={placeholder}
-          selectedKeys={field.value ? [field.value] : []}
-          onChange={(e) => field.onChange(e.target.value)}
+    <div className="space-y-2">
+      <div className="flex gap-2 items-center">
+        <label className="text-sm font-medium text-foreground">{label}</label>
+        <Tooltip
+          content={explanation}
+          placement="top"
+          size="sm"
+          className="text-xs"
         >
-          {options.map((option) => (
-            <SelectItem key={option.value}>{option.label}</SelectItem>
-          ))}
-        </Select>
-      )}
-    />
+          <HelpCircle className="w-3 h-3 cursor-help text-default-400" />
+        </Tooltip>
+      </div>
+
+      <Controller
+        control={control}
+        name={name}
+        rules={{ required: `${label} is required` }}
+        render={({ field, fieldState: { error } }) => (
+          <div>
+            <Select
+              {...field}
+              placeholder={placeholder}
+              selectedKeys={field.value ? [field.value] : []}
+              onChange={(e) => {
+                field.onChange(e.target.value);
+                setSelectedValue(e.target.value);
+              }}
+              errorMessage={error?.message}
+              size="lg"
+              aria-label={`${label} for vehicle ${vehicleNumber}`}
+            >
+              {options.map((option) => {
+                const popularity =
+                  popularityData[option.value as keyof typeof popularityData];
+                return (
+                  <SelectItem key={option.value} textValue={option.label}>
+                    <div className="flex justify-between items-center w-full">
+                      <span>{option.label}</span>
+                      {popularity?.isPopular && (
+                        <Chip
+                          size="sm"
+                          variant="solid"
+                          color={
+                            popularity.percentage > 35 ? "success" : "warning"
+                          }
+                          className="ml-2"
+                        >
+                          {popularity.label}
+                        </Chip>
+                      )}
+                    </div>
+                  </SelectItem>
+                );
+              })}
+            </Select>
+
+            {/* Quick premium hint */}
+            {selectedValue && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex gap-1 items-center mt-1 text-xs text-default-500"
+              >
+                {parseInt(selectedValue) <= 250 ? (
+                  <TrendingUp className="w-3 h-3 text-orange-500" />
+                ) : (
+                  <TrendingDown className="w-3 h-3 text-green-500" />
+                )}
+                <span>
+                  {parseInt(selectedValue) <= 250
+                    ? "Higher premium"
+                    : "Lower premium"}
+                </span>
+              </motion.div>
+            )}
+          </div>
+        )}
+      />
+    </div>
+  );
+};
+
+const VehicleSection = ({
+  vehicleNumber,
+  year,
+  make,
+  model,
+  control,
+  isComplete,
+}: {
+  vehicleNumber: 1 | 2;
+  year?: string;
+  make?: string;
+  model?: string;
+  control: Control<PolicyData>;
+  isComplete: boolean;
+}) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2, delay: vehicleNumber * 0.05 }}
+    >
+      <Card className="border transition-colors hover:border-primary/30">
+        <CardBody className="space-y-4">
+          {/* Quick vehicle header */}
+          <div className="flex justify-between items-center">
+            <div className="flex gap-3 items-center">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Car className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-medium text-foreground">
+                  {year && make && model
+                    ? `${year} ${make} ${model}`
+                    : `Vehicle ${vehicleNumber}`}
+                </h3>
+              </div>
+            </div>
+            {isComplete && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", duration: 0.3 }}
+              >
+                <CheckCircle className="w-5 h-5 text-success" />
+              </motion.div>
+            )}
+          </div>
+
+          {/* Quick deductible selection */}
+          <div className="grid grid-cols-2 gap-4">
+            <DeductibleSelect
+              control={control}
+              options={vehicleComprehensiveOptions}
+              name={
+                vehicleNumber === 1
+                  ? "vehicleOneComprehensive"
+                  : "vehicleTwoComprehensive"
+              }
+              label="Comprehensive"
+              placeholder="Select amount"
+              coverageType="comprehensive"
+              vehicleNumber={vehicleNumber}
+            />
+
+            <DeductibleSelect
+              control={control}
+              options={vehicleCollisionOptions}
+              name={
+                vehicleNumber === 1
+                  ? "vehicleOneCollision"
+                  : "vehicleTwoCollision"
+              }
+              label="Collision"
+              placeholder="Select amount"
+              coverageType="collision"
+              vehicleNumber={vehicleNumber}
+            />
+          </div>
+        </CardBody>
+      </Card>
+    </motion.div>
   );
 };
 
 export default function Policy() {
   const navigate = useNavigate();
   const { formData, updateFormData } = useFormData();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const hasCurrentInsurance = formData.currentlyInsured === "Yes";
   const hasSecondVehicle = !!formData.vehicleTwoMake;
 
-  const wordingPrefix = hasCurrentInsurance ? "current" : "desired";
-  const titlePrefix = hasCurrentInsurance
-    ? "What are your current"
-    : "What is your desired";
+  const titlePrefix = hasCurrentInsurance ? "Current" : "Desired";
 
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting },
+    watch,
+    formState: { errors },
   } = useForm<PolicyData>({
     defaultValues: {
       vehicleOneComprehensive: formData.vehicleOneComprehensive || "",
       vehicleOneCollision: formData.vehicleOneCollision || "",
-      vehicleTwoComprehensive: formData.vehicleTwoComprehensive || "",
-      vehicleTwoCollision: formData.vehicleTwoCollision || "",
+      vehicleTwoComprehensive: hasSecondVehicle
+        ? formData.vehicleTwoComprehensive || ""
+        : undefined,
+      vehicleTwoCollision: hasSecondVehicle
+        ? formData.vehicleTwoCollision || ""
+        : undefined,
     },
   });
 
-  const onSubmit = (data: PolicyData) => {
+  // Watch form values for completion tracking
+  const watchedValues = watch();
+
+  // Debug logging
+  console.log("Policy form values:", watchedValues);
+  console.log("Has second vehicle:", hasSecondVehicle);
+
+  // Check vehicle completion
+  const vehicle1Complete = !!(
+    watchedValues.vehicleOneComprehensive && watchedValues.vehicleOneCollision
+  );
+  const vehicle2Complete = hasSecondVehicle
+    ? !!(
+        watchedValues.vehicleTwoComprehensive &&
+        watchedValues.vehicleTwoCollision
+      )
+    : true;
+
+  console.log("Vehicle 1 complete:", vehicle1Complete, {
+    comp: watchedValues.vehicleOneComprehensive,
+    coll: watchedValues.vehicleOneCollision,
+  });
+  console.log("Vehicle 2 complete:", vehicle2Complete, {
+    comp: watchedValues.vehicleTwoComprehensive,
+    coll: watchedValues.vehicleTwoCollision,
+  });
+
+  const onSubmit = async (data: PolicyData) => {
+    setIsSubmitting(true);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     updateFormData({
       ...data,
       lastCompletedStep: "policy",
     });
+
     navigate("/profile");
   };
 
@@ -95,97 +316,58 @@ export default function Policy() {
     navigate("/insurance-details");
   };
 
-  const fadeIn = {
-    initial: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.5 } },
-  };
-
   return (
     <motion.div
       className="space-y-6"
-      initial="hidden"
-      animate="visible"
-      variants={fadeIn}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
     >
-      <div>
+      {/* Streamlined header */}
+      <div className="space-y-2 text-center">
         <h2 className="text-xl font-semibold">
-          {titlePrefix} deductible preferences?
+          {titlePrefix} deductible amounts?
         </h2>
-        <p className="text-sm text-gray-600">
-          Please select your {wordingPrefix} comprehensive and collision
-          deductible amounts.
+        <p className="text-sm text-default-600">
+          {hasCurrentInsurance
+            ? "Enter your current deductible amounts"
+            : "Choose your preferred deductible amounts"}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Vehicle One Deductibles */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Vehicle sections */}
         <div className="space-y-4">
-          <h3 className="text-lg font-medium">
-            {formData.vehicleOneYear} {formData.vehicleOneMake}{" "}
-            {formData.vehicleOneModel}
-          </h3>
-
-          <DeductibleSelect
+          <VehicleSection
+            vehicleNumber={1}
+            year={formData.vehicleOneYear}
+            make={formData.vehicleOneMake}
+            model={formData.vehicleOneModel}
             control={control}
-            options={vehicleComprehensiveOptions}
-            name="vehicleOneComprehensive"
-            label="Vehicle Comprehensive Deductible"
-            placeholder="Select comprehensive deductible"
+            isComplete={vehicle1Complete}
           />
 
-          <DeductibleSelect
-            control={control}
-            options={vehicleCollisionOptions}
-            name="vehicleOneCollision"
-            label="Vehicle Collision Deductible"
-            placeholder="Select collision deductible"
-          />
+          {hasSecondVehicle && (
+            <VehicleSection
+              vehicleNumber={2}
+              year={formData.vehicleTwoYear}
+              make={formData.vehicleTwoMake}
+              model={formData.vehicleTwoModel}
+              control={control}
+              isComplete={vehicle2Complete}
+            />
+          )}
         </div>
 
-        {/* Vehicle Two Deductibles - Only show if user has second vehicle */}
-        {hasSecondVehicle && (
-          <motion.div
-            className="space-y-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <h3 className="text-lg font-medium">
-              {formData.vehicleTwoYear} {formData.vehicleTwoMake}{" "}
-              {formData.vehicleTwoModel}
-            </h3>
-
-            <DeductibleSelect
-              control={control}
-              options={vehicleComprehensiveOptions}
-              name="vehicleTwoComprehensive"
-              label="Vehicle Comprehensive Deductible"
-              placeholder="Select comprehensive deductible"
-            />
-
-            <DeductibleSelect
-              control={control}
-              options={vehicleCollisionOptions}
-              name="vehicleTwoCollision"
-              label="Vehicle Collision Deductible"
-              placeholder="Select collision deductible"
-            />
-          </motion.div>
-        )}
-
-        <motion.div
-          className="flex justify-between space-x-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.3 }}
-        >
+        {/* Form actions */}
+        <div className="flex justify-between pt-4 space-x-4">
           <Button
             type="button"
             variant="ghost"
-            color="default"
             size="lg"
             onPress={handleBack}
             startContent={<ChevronLeft className="w-4 h-4" />}
+            isDisabled={isSubmitting}
           >
             Back
           </Button>
@@ -193,13 +375,28 @@ export default function Policy() {
             type="submit"
             color="primary"
             size="lg"
-            className="flex-grow"
-            endContent={<ChevronRight className="ml-2" />}
+            className="flex-grow max-w-md"
+            endContent={<ChevronRight className="w-4 h-4" />}
             isLoading={isSubmitting}
+            isDisabled={!(vehicle1Complete && vehicle2Complete)}
           >
-            Continue
+            {isSubmitting ? "Saving..." : "Continue"}
           </Button>
-        </motion.div>
+        </div>
+
+        {/* Minimal error feedback */}
+        <AnimatePresence>
+          {Object.keys(errors).length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-sm text-center text-danger"
+            >
+              Please select all deductible amounts
+            </motion.div>
+          )}
+        </AnimatePresence>
       </form>
     </motion.div>
   );

@@ -53,7 +53,7 @@ export default function Submitting() {
         Zip: formData.zipcode?.toString() || "",
         DriverOneFirstName: formData.driverOneFirstName || "",
         DriverOneLastName: formData.driverOneLastName || "",
-        DriverOneDateOfBirth: formData.driverOneDOB?.toString() || "",
+        DriverOneDateOfBirth: formData.driverOneDOB || "",
         DriverOneGender: formData.driverOneGender || "",
         DriverOneResidence: formData.driverOneResidence || "",
         DriverOneYearsAtResidence: formData.driverOneYearAtResidence || "",
@@ -68,7 +68,7 @@ export default function Submitting() {
         DriverOneDUI: formData.driverOneDUI || "",
         DriverTwoFirstName: formData.driverTwoFirstName || "",
         DriverTwoLastName: formData.driverTwoLastName || "",
-        DriverTwoDateOfBirth: formData.driverTwoDOB?.toString() || "",
+        DriverTwoDateOfBirth: formData.driverTwoDOB || "",
         DriverTwoGender: formData.driverTwoGender || "",
         DriverTwoCredit: formData.driverTwoCredit || "",
         DriverTwoOccupation: formData.driverTwoOccupation || "",
@@ -159,16 +159,16 @@ export default function Submitting() {
   }, [navigate]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/5 to-primary/10">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-primary/5 to-primary/10">
       <div className="space-y-8 text-center">
-        <div className="w-64 h-64 mx-auto">
+        <div className="mx-auto w-64 h-64">
           <Lottie
             animationData={loadingAnimation}
             loop={true}
             className="w-full h-full"
           />
         </div>
-
+cc
         <AnimatePresence mode="wait">
           <motion.div
             key={currentMessageIndex}
@@ -183,7 +183,7 @@ export default function Submitting() {
         </AnimatePresence>
 
         <motion.div
-          className="w-64 h-1 overflow-hidden rounded-full bg-primary/20"
+          className="overflow-hidden w-64 h-1 rounded-full bg-primary/20"
           initial={{ width: 0 }}
           animate={{ width: "100%" }}
           transition={{ duration: 7, ease: "linear" }}
